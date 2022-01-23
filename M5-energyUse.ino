@@ -45,11 +45,10 @@ void drawWattage(uint32_t wattage) {
     const char* month[] {"januari", "februari", "maart", "april", "mei", "juni", "juli", "augustus", "september", "oktober", "november", "december"};
 
     char buffer[80];
-    snprintf(buffer, sizeof(buffer), "           %s %i %s %i           ",
+    snprintf(buffer, sizeof(buffer), "             %s %i %s             ",
              weekday[timeinfo->tm_wday],
              timeinfo->tm_mday,
-             month[timeinfo->tm_mon],
-             timeinfo->tm_year + 1900);
+             month[timeinfo->tm_mon]);
 
     lcd.setTextDatum(textdatum_t::top_center);
     lcd.setTextColor(0xFFFF00U, 0x000000U);
@@ -64,9 +63,8 @@ void drawElectricToday(uint32_t watthours) {
     lcd.setTextDatum(textdatum_t::top_center);
     lcd.setTextColor(0xFFFFFFU, 0x000000U);
     lcd.setFont(&fonts::Font4);
-    float f_Wh = watthours / 1000.0;
     char tmp[100];
-    snprintf(tmp, sizeof(tmp), "     %.3f kWh     ", f_Wh);
+    snprintf(tmp, sizeof(tmp), "     %.3f kWh     ", watthours / 1000.0);
     lcd.drawString(tmp, lcd.width() / 2,  175);
 }
 
@@ -74,9 +72,8 @@ void drawGasToday(uint32_t cubicmeters) {
     lcd.setTextDatum(textdatum_t::top_center);
     lcd.setTextColor(0xFFFFFFU, 0x000000U);
     lcd.setFont(&fonts::Font4);
-    float f_cm = cubicmeters / 1000.0;
     char tmp[100];
-    snprintf(tmp, sizeof(tmp), "     %.3f m3     ", f_cm);
+    snprintf(tmp, sizeof(tmp), "     %.3f m3     ", cubicmeters / 1000.0);
     lcd.drawString(tmp, lcd.width() / 2,  205);
 }
 
@@ -84,6 +81,8 @@ std::vector<String> arg;
 
 void setup() {
     lcd.init();
+
+    lcd.setBrightness(10);
 
 #if defined( LGFX_ESP_WROVER_KIT )
     lcd.setRotation(1);
@@ -123,7 +122,7 @@ void setup() {
         delay(10);
 
     lcd.drawString("verbinden met host",  lcd.width() / 2,  0);
-    lcd.drawString("totaal vandaag", lcd.width() / 2,  lcd.height() / 2 + 20);
+    lcd.drawString("verbruikt vandaag:", lcd.width() / 2,  lcd.height() / 2 + 20);
 
     arg.reserve(9);
     connectToWebSocketBridge();
