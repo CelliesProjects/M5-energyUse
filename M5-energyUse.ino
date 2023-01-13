@@ -1,23 +1,4 @@
-#define LGFX_M5STACK
-
-// LGFX_AUTODETECT
-// #define LGFX_M5STACK               // M5Stack (Basic / Gray / Go / Fire)
-// #define LGFX_M5STACK_CORE2         // M5Stack Core2
-// #define LGFX_M5STACK_COREINK       // M5Stack CoreInk
-// #define LGFX_M5STICK_C             // M5Stick C / CPlus
-// #define LGFX_M5PAPER               // M5Paper
-// #define LGFX_ODROID_GO             // ODROID-GO
-// #define LGFX_TTGO_TS               // TTGO TS
-// #define LGFX_TTGO_TWATCH           // TTGO T-Watch
-// #define LGFX_TTGO_TWRISTBAND       // TTGO T-Wristband
-// #define LGFX_DDUINO32_XS           // DSTIKE D-duino-32 XS
-// #define LGFX_LOLIN_D32_PRO         // LoLin D32 Pro
-// #define LGFX_ESP_WROVER_KIT        // ESP-WROVER-KIT
-// #define LGFX_WIFIBOY_PRO           // WiFiBoy Pro
-// #define LGFX_WIFIBOY_MINI          // WiFiBoy mini
-// #define LGFX_MAKERFABS_TOUCHCAMERA // Makerfabs Touch with Camera
-// #define LGFX_MAKERFABS_MAKEPYTHON  // Makerfabs MakePython
-// #define LGFX_WIO_TERMINAL          // Wio Terminal
+#define LGFX_AUTODETECT
 
 #include <vector>
 #include <LovyanGFX.hpp>           /* Arduino library manager */
@@ -25,7 +6,7 @@
 
 #include "wifisetup.h"
 
-static LGFX lcd;
+LGFX lcd;
 
 static WebSocketsClient ws_bridge;
 
@@ -92,12 +73,12 @@ void setup() {
     lcd.setTextColor(0xFFFF00U, 0x000000U);
     lcd.setFont(&fonts::Font4);
 
-    lcd.drawString("connecting WiFi",  lcd.width() / 2,  0);
+    lcd.drawString("WiFi starten",  lcd.width() / 2,  0);
 
     Serial.begin(115200);
 
     if (SET_STATIC_IP && !WiFi.config(STATIC_IP, GATEWAY, SUBNET, PRIMARY_DNS, SECONDARY_DNS))
-        Serial.println("Setting static IP failed");
+        Serial.println("Geen statisch IP mogelijk");
 
     WiFi.begin(WIFI_NETWORK, WIFI_PASSWORD);
     WiFi.setSleep(false);
@@ -105,7 +86,7 @@ void setup() {
     while (!WiFi.isConnected())
         delay(10);
 
-    lcd.drawString("         syncing ntp         ",  lcd.width() / 2,  0);
+    lcd.drawString("         klok gelijkzetten         ",  lcd.width() / 2,  0);
 
     WiFi.onEvent(WiFiEvent);
     Serial.printf("connected to '%s' as %s\n", WIFI_NETWORK, WiFi.localIP().toString().c_str());
@@ -114,9 +95,7 @@ void setup() {
     /* sync the clock with ntp */
     configTzTime(TIMEZONE, NTP_POOL);
 
-    tm now {
-        0
-    };
+    tm now {};
 
     while (!getLocalTime(&now, 0))
         delay(10);
@@ -147,7 +126,7 @@ void ws_bridge_onEvents(WStype_t type, uint8_t* payload, size_t length) {
             break;
 
         case WStype_TEXT : {
-                ESP_LOGD(TAG, "payload: %s", payload);
+                log_d("payload: %s", payload);
                 if (!ws_bridge.isConnected()) return;
                 payload[length] = 0;
 
@@ -155,7 +134,7 @@ void ws_bridge_onEvents(WStype_t type, uint8_t* payload, size_t length) {
                 if (!pch) return;
 
                 while (pch) {
-                    ESP_LOGD(TAG, "argument: %s", pch);
+                    log_d("argument: %s", pch);
                     arg.push_back(pch);
                     pch = strtok(NULL, "\n");
                 }
@@ -166,7 +145,7 @@ void ws_bridge_onEvents(WStype_t type, uint8_t* payload, size_t length) {
                 if (arg.size() == 9 && arg[0].equals("current")) {
                     /*
                         for (const auto& item : arg) {
-                        ESP_LOGI(TAG, "argument: %s", item.c_str());
+                        log_i("argument: %s", item.c_str());
                         }
                     */
                     drawWattage(arg[1].toInt());
@@ -178,44 +157,42 @@ void ws_bridge_onEvents(WStype_t type, uint8_t* payload, size_t length) {
             break;
 
         case WStype_ERROR :
-            ESP_LOGE(TAG, "websocket bridge error");
+            log_e("websocket bridge error");
             break;
 
         case WStype_PING :
-            ESP_LOGI(TAG, "received ping");
+            log_i("received ping");
             break;
 
         case WStype_PONG :
-            ESP_LOGI(TAG, "received pong");
+            log_i("received pong");
             break;
 
-        default : ESP_LOGE(TAG, "unhandled websocket bridge event");
+        default : log_e("unhandled websocket bridge event");
     }
 }
 
 void WiFiEvent(WiFiEvent_t event) {
     switch (event) {
         case SYSTEM_EVENT_STA_START:
-            ESP_LOGD(TAG, "STA Started");
-            //WiFi.setHostname( DEFAULT_HOSTNAME_PREFIX.c_str();
+            log_d("STA Started");
             break;
         case SYSTEM_EVENT_STA_CONNECTED:
-            ESP_LOGD(TAG, "STA Connected");
-            //WiFi.enableIpV6();
+            log_d("STA Connected");
             break;
         case SYSTEM_EVENT_AP_STA_GOT_IP6:
-            ESP_LOGD(TAG, "STA IPv6: ");
-            ESP_LOGD(TAG, "%s", WiFi.localIPv6().toString());
+            log_d("STA IPv6: ");
+            log_d("%s", WiFi.localIPv6().toString());
             break;
         case SYSTEM_EVENT_STA_GOT_IP:
-            ESP_LOGD(TAG, "STA IPv4: %s", WiFi.localIP());
+            log_d("STA IPv4: %s", WiFi.localIP());
             break;
         case SYSTEM_EVENT_STA_DISCONNECTED:
-            ESP_LOGI(TAG, "STA Disconnected");
+            log_i("STA Disconnected");
             WiFi.begin();
             break;
         case SYSTEM_EVENT_STA_STOP:
-            ESP_LOGI(TAG, "STA Stopped");
+            log_i("STA Stopped");
             break;
         default:
             break;
