@@ -1,8 +1,11 @@
-#define LGFX_TTGO_TM  // LGFX_TTGO_TM or LGFX_AUTODETECT 
+#define LGFX_TTGO_TM // use LGFX_TTGO_TM for TTGO-TM-ESP32 -this board-> https://github.com/LilyGO/TTGO-TM-ESP32
+                     // or LGFX_AUTODETECT for M5Stack and maybe others
 
 #include <vector>
 #include <LovyanGFX.hpp>      /* Arduino library manager */
 #include <WebSocketsClient.h> /* https://github.com/Links2004/arduinoWebSockets */
+
+// see this for lovyan ttgo-tm-st7789 setup https://github.com/lovyan03/LovyanGFX/issues/159
 
 #include "wifisetup.h"
 #if defined(LGFX_TTGO_TM)
