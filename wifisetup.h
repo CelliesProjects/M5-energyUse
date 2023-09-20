@@ -1,5 +1,5 @@
-const char* WIFI_NETWORK = "huiskamer";
-const char* WIFI_PASSWORD = "0987654321";
+const char* WIFI_NETWORK = "xxx";
+const char* WIFI_PASSWORD = "xxx";
 
 const char*    WS_BRIDGE_HOST =    "192.168.0.90";          /* bridge adress */
 const uint16_t WS_BRIDGE_PORT =    80;                       /* bridge port */
